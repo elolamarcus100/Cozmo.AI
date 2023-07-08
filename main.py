@@ -33,10 +33,10 @@ try:
     import unidecode
     import voice_commands
     import numpy
+    
 
 except ImportError:
-    sys.exit("Some packages are required. Do `pip3 install selenium pillow numpy termcolor cozmo requests SpeechRecognition"
-             "selenium feedparser beautifulsoup4 unidecode pyaudio` to install.")
+    sys.exit("Some packages are required. Do `pip3 install selenium pillow numpy termcolor cozmo requests SpeechRecognition selenium feedparser beautifulsoup4 unidecode pyaudio` to install.")
 
 from random import randint
 
@@ -50,6 +50,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from termcolor import cprint
+from selenium.webdriver.chrome.options import Options
+
 
 # General Parameters
 version = "ver. 0.5.0"
@@ -543,7 +545,7 @@ def take_photo(robot):
 
 def freeplay(robot):
     rec = sr.Recognizer()
-    microphone = sr.Microphone()
+    microphone = sr.Microphone()  # Use the appropriate device index (1 in this case)
     bot = AIBot()
 
     print()
@@ -594,7 +596,8 @@ def freeplay(robot):
 
 def ask_name(robot):
     rec = sr.Recognizer()
-    microphone = sr.Microphone()
+    microphone = sr.Microphone()  # Use the appropriate device index (1 in this case)
+
     cprint("\nWhat's your name please?", "white", attrs=['bold'])
     robot.say_text("What's your name please?", use_cozmo_voice=True, duration_scalar=0.6, voice_pitch=0) \
         .wait_for_completed()
@@ -627,6 +630,7 @@ def ask_name(robot):
             robot.say_text("I'm sorry. Cannot connect to voice services. Exiting program.", use_cozmo_voice=True,
                            duration_scalar=0.6, voice_pitch=0).wait_for_completed()
             sys.exit(0)
+
 
 
 # Setup program functionality #
@@ -664,7 +668,7 @@ def printSupportedCommands():
 
 def listen_robot(robot):
     rec = sr.Recognizer()
-    microphone = sr.Microphone()
+    microphone = sr.Microphone()  # Use the appropriate device index (1 in this case)
 
     with microphone as source:
         rec.pause_threshold = 0.6
@@ -770,28 +774,26 @@ def readystate_complete(d):
 class AIBot:
 
     def __init__(self):
-
         # Initialize selenium options 
         self.opts = Options()
         #  self.opts.add_argument("--headless")
-        self.opts.add_argument("")
-        self.browser = webdriver.Firefox(options=self.opts)
+        #  self.opts.add_argument("")
+        self.browser = webdriver.Chrome(options=self.opts)
         self.browser.implicitly_wait(5.0)
         self.url = "http://demo.vhost.pandorabots.com/pandora/talk?botid=b0dafd24ee35a477"
         self.searchEngine = "https://start.duckduckgo.com"
 
     def get_form(self):
         # Find the form tag to enter your message
-        self.elem = self.browser.find_element_by_name('input')
+        self.elem = self.browser.find_element_by_css_selector('input[name="input"]')
 
     def send_input(self, userInput):
-
         # Submits your message
         fOne = '<\/?[a-z]+>|<DOCTYPE'
         fTwo = '/<[^>]+>/g'
         while True:
             try:
-                self.elem.send_keys(userInput + Keys.RETURN)
+                self.elem.send_keys(userInput + Keys.ENTER)
             except BrokenPipeError:
                 continue
             break
